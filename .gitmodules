@@ -1,0 +1,9 @@
+[submodule "mlsploit-rest-api"]
+	path = mlsploit-rest-api
+	url = https://github.com/mlsploit/mlsploit-rest-api
+[submodule "mlsploit-execution-backend"]
+	path = mlsploit-execution-backend
+	url = https://github.com/mlsploit/mlsploit-execution-backend
+[submodule "mlsploit-web-ui"]
+	path = mlsploit-web-ui
+	url = https://github.com/mlsploit/mlsploit-web-ui
