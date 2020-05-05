@@ -1,0 +1,91 @@
+version: '3'
+
+services:
+  networking-backend:
+    image: redis:latest
+
+  networking-broker:
+    build:
+      context: ./mlsploit-execution-backend/docker-services/rabbitmq
+
+  api:
+    build:
+      context: ./mlsploit-rest-api
+    volumes:
+      - ./mlsploit-rest-api:/app
+    env_file:
+      - ./mlsploit-rest-api/.env
+    environment:
+      RUNNING_IN_DOCKER: 'true'
+
+  ui:
+    build:
+      context: ./mlsploit-web-ui
+    volumes:
+      - ./mlsploit-web-ui:/app
+      - ui_node_modules:/app/node_modules
+    depends_on:
+      - api
+
+  execution-master:
+    build:
+      context: ./mlsploit-execution-backend
+      args:
+        BASE_DIR: $PWD/mlsploit-execution-backend
+        STAGE: master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mlsploit-execution-backend:/app
+    env_file:
+      - ./mlsploit-execution-backend/.env
+    environment:
+      RUNNING_IN_DOCKER: 'true'
+    depends_on:
+      - networking-backend
+      - networking-broker
+      - api
+    links:
+      - 'networking-backend:redis-host'
+      - 'networking-broker:rabbitmq-host'
+      - 'api:api-host'
+
+  execution-worker:
+    build:
+      context: ./mlsploit-execution-backend
+      args:
+        BASE_DIR: $PWD/mlsploit-execution-backend
+        STAGE: worker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./mlsploit-execution-backend:/app
+    env_file:
+      - ./mlsploit-execution-backend/.env
+    environment:
+      RUNNING_IN_DOCKER: 'true'
+    depends_on:
+      - networking-backend
+      - networking-broker
+      - execution-master
+      - api
+    links:
+      - 'networking-backend:redis-host'
+      - 'networking-broker:rabbitmq-host'
+      - 'api:api-host'
+
+  hosting:
+    build:
+      context: .
+    ports:
+      - 80:80
+    volumes:
+      - ./mlsploit-rest-api/.scratch/media:/mlsploit/media
+    depends_on:
+      - api
+      - ui
+    links:
+      - 'api:api-host'
+      - 'ui:ui-host'
+
+
+volumes:
+  ui_node_modules:
