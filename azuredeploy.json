@@ -202,12 +202,41 @@
                     ]
                 }
             }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(mlsploit.resourceName('virtualMachine'), '/', mlsploit.resourceName('startupScript'))]",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', mlsploit.resourceName('virtualMachine'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Azure.Extensions",
+                "type": "CustomScript",
+                "typeHandlerVersion": "2.1",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "https://raw.githubusercontent.com/mlsploit/mlsploit-system/master/deployment.sh"
+                    ],
+                    "commandToExecute": "bash deployment.sh"
+                }
+            }
         }
     ],
     "outputs": {
-        "websiteURL": {
+        "appURL": {
             "type": "string",
             "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', mlsploit.resourceName('publicIPAddress'))).dnsSettings.fqdn]"
+        },
+        "appTestUsername": {
+            "type": "string",
+            "value": "testuser"
+        },
+        "appTestPassword": {
+            "type": "string",
+            "value": "testpassword"
         },
         "connectViaSSH": {
             "type": "string",
