@@ -2,6 +2,8 @@
 
 # MLsploit Dockerized System
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://azuredeploy.net/)
+
 ## Requirements
 
 This repository requires the following packages to be installed on the system:

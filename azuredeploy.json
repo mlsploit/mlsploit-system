@@ -1,0 +1,217 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminUsername": {
+            "type": "string",
+            "defaultValue": "mlsploit-user",
+            "metadata": {
+                "description": "Username for logging into the MLsploit virtual machine."
+            }
+        },
+        "authenticationType": {
+            "type": "string",
+            "defaultValue": "sshPublicKey",
+            "allowedValues": [
+                "sshPublicKey",
+                "password"
+            ],
+            "metadata": {
+                "description": "Type of authentication used to access the MLsploit virtual machine. SSH key is recommended."
+            }
+        },
+        "adminPasswordOrSSHKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password or SSH Key to access the MLsploit virtual machine. SSH key is recommended."
+            }
+        }
+    },
+    "variables": {
+        "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+                "publicKeys": [
+                    {
+                        "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                        "keyData": "[parameters('adminPasswordOrSSHKey')]"
+                    }
+                ]
+            }
+        }
+    },
+    "functions": [
+        {
+            "namespace": "mlsploit",
+            "members": {
+                "resourceName": {
+                    "parameters": [
+                        {
+                            "name": "nameSuffix",
+                            "type": "string"
+                        }
+                    ],
+                    "output": {
+                       "type": "string",
+                       "value": "[concat('mlsploit', '-', uniqueString(resourceGroup().id, deployment().name), '-', parameters('nameSuffix'))]"
+                    }
+                }
+            }
+        }
+    ],
+    "resources": [
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[mlsploit.resourceName('publicIPAddress')]",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                    "domainNameLabel": "[mlsploit.resourceName('site')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[mlsploit.resourceName('networkSecurityGroup')]",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "SSH",
+                        "properties": {
+                            "description": "Allow SSH",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "22",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "HTTP",
+                        "properties": {
+                            "description": "Allow HTTP",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "80",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1001,
+                            "direction": "Inbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[mlsploit.resourceName('virtualNetwork')]",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', mlsploit.resourceName('networkSecurityGroup'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Subnet",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', mlsploit.resourceName('networkSecurityGroup'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[mlsploit.resourceName('networkInterface')]",
+            "apiVersion": "2019-11-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', mlsploit.resourceName('publicIPAddress'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', mlsploit.resourceName('virtualNetwork'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipConfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', mlsploit.resourceName('publicIPAddress'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', mlsploit.resourceName('virtualNetwork'), 'Subnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[mlsploit.resourceName('virtualMachine')]",
+            "apiVersion": "2019-07-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', mlsploit.resourceName('networkInterface'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_A2_v2"
+                },
+                "osProfile": {
+                    "computerName": "[mlsploit.resourceName('virtualMachine')]",
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "adminPassword": "[parameters('adminPasswordOrSSHKey')]",
+                    "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "Canonical",
+                        "offer": "UbuntuServer",
+                        "sku": "18.04-LTS",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[mlsploit.resourceName('osDisk')]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', mlsploit.resourceName('networkInterface'))]"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "websiteURL": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', mlsploit.resourceName('publicIPAddress'))).dnsSettings.fqdn]"
+        },
+        "connectViaSSH": {
+            "type": "string",
+            "value": "[concat('ssh', ' ', parameters('adminUsername'), '@', reference(resourceId('Microsoft.Network/publicIPAddresses', mlsploit.resourceName('publicIPAddress'))).dnsSettings.fqdn)]"
+        }
+    }
+}
