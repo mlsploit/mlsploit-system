@@ -6,9 +6,42 @@ function log() {
     echo -e "\033[34m\033[1m[docker-setup-system]\033[0m $@"
 }
 
+function usage() {
+    echo "usage: bash docker-setup-system.sh [-mh]"
+    echo
+    echo "options:"
+    echo "    m    Set up in manual mode."
+    echo "    h    Show this message."
+    echo
+    echo "This is a helper script to set up the MLsploit system."
+}
+
+MANUAL_MODE="false"
+while getopts ":apth" OPTKEY; do
+    case $OPTKEY in
+        m )
+            MANUAL_MODE="true"
+            ;;
+        h )
+            usage
+            exit 0
+            ;;
+        \? )
+            echo "invalid option: -$OPTARG" 1>&2
+            echo
+            usage
+            exit 1
+            ;;
+    esac
+done
+
 log "Setting up MLsploit REST API..."
 cd mlsploit-rest-api
-./docker-setup-api.sh -ap
+if [[ $MANUAL_MODE == "true" ]]; then
+    ./docker-setup-api.sh -p
+else
+    ./docker-setup-api.sh -apt
+fi
 API_ADMIN_TOKEN=$(./docker-manage-api.sh drf_create_token admin | cut -d " " -f 3)
 cd ..
 
