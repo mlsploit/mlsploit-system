@@ -40,14 +40,21 @@ cd mlsploit-rest-api
 if [[ $MANUAL_MODE == "true" ]]; then
     ./docker-setup-api.sh -p
 else
+    if [[ ! -f modules.csv ]]; then
+        cp ../modules.csv.example modules.csv
+    fi
     ./docker-setup-api.sh -apt
 fi
+
 API_ADMIN_TOKEN=$(./docker-manage-api.sh drf_create_token admin | cut -d " " -f 3)
 cd ..
 
 cd mlsploit-execution-backend
 log "Setting up MLsploit Execution Backend..."
 ./env-set-token.sh "$API_ADMIN_TOKEN"
+if [[ $MANUAL_MODE != "true" && ! -f modules.csv ]]; then
+    cp ../modules.csv.example modules.csv
+fi
 ./docker-setup-execution.sh
 cd ..
 
