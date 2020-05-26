@@ -27,6 +27,20 @@ services:
     depends_on:
       - api
 
+  hosting:
+    build:
+      context: .
+    ports:
+      - 80:80
+    volumes:
+      - ./mlsploit-rest-api/.scratch/media:/mlsploit/media
+    depends_on:
+      - api
+      - ui
+    links:
+      - 'api:api-host'
+      - 'ui:ui-host'
+
   execution-master:
     build:
       context: ./mlsploit-execution-backend
@@ -43,11 +57,11 @@ services:
     depends_on:
       - networking-backend
       - networking-broker
-      - api
+      - hosting
     links:
       - 'networking-backend:redis-host'
       - 'networking-broker:rabbitmq-host'
-      - 'api:api-host'
+      - 'hosting:api-host'
 
   execution-worker:
     build:
@@ -66,26 +80,11 @@ services:
       - networking-backend
       - networking-broker
       - execution-master
-      - api
+      - hosting
     links:
       - 'networking-backend:redis-host'
       - 'networking-broker:rabbitmq-host'
-      - 'api:api-host'
-
-  hosting:
-    build:
-      context: .
-    ports:
-      - 80:80
-    volumes:
-      - ./mlsploit-rest-api/.scratch/media:/mlsploit/media
-    depends_on:
-      - api
-      - ui
-    links:
-      - 'api:api-host'
-      - 'ui:ui-host'
-
+      - 'hosting:api-host'
 
 volumes:
   ui_node_modules:
