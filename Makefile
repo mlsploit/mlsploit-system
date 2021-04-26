@@ -19,9 +19,9 @@ GIT_SUBMODULES := $(addsuffix /.git,$(MLSPLOIT_MODULE_NAMES))
 MLSPLOIT_MODULES := $(addprefix $(MLSPLOIT_SETUP_DIR)/,$(MLSPLOIT_MODULE_NAMES))
 MODULE_PREREQUISITES := /usr/bin/docker-compose $(MLSPLOIT_SETUP_DIR)
 
-DOCKER_COMPOSE_URL := https://github.com/docker/compose/releases/download
-DOCKER_COMPOSE_URL := $(DOCKER_COMPOSE_URL)/1.25.5
-DOCKER_COMPOSE_URL := $(DOCKER_COMPOSE_URL)/docker-compose-$(shell uname -s)-$(shell uname -m)
+DOCKER_COMPOSE_RELEASE := https://github.com/docker/compose/releases/download
+DOCKER_COMPOSE_VERSION := 1.25.5/docker-compose-$(shell uname -s)-$(shell uname -m)
+DOCKER_COMPOSE_URL := $(DOCKER_COMPOSE_RELEASE)/$(DOCKER_COMPOSE_VERSION)
 
 # ~~~
 
@@ -76,10 +76,10 @@ mlsploit-rest-api/modules.csv: | mlsploit-rest-api/.git
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api
 $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api: mlsploit-rest-api/modules.csv | $(MODULE_PREREQUISITES)
-	cd $(@F) && sudo ./docker-setup-api.sh -apt | tee $@; test $${PIPESTATUS[0]} -eq 0
+	cd $(@F) && ./docker-setup-api.sh -apt | tee $@; test $${PIPESTATUS[0]} -eq 0
 
 mlsploit-rest-api/.admintoken: $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api
-	cd $(@D) && sudo ./docker-manage-api.sh drf_create_token admin | cut -d " " -f 3 > $(@F)
+	cd $(@D) && ./docker-manage-api.sh drf_create_token admin | cut -d " " -f 3 > $(@F)
 
 # ~~~
 
@@ -93,20 +93,20 @@ mlsploit-execution-backend/modules.csv: | mlsploit-execution-backend/.git
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-execution-backend
 $(MLSPLOIT_SETUP_DIR)/mlsploit-execution-backend: $(BACKEND_PREREQUISITES) | $(MODULE_PREREQUISITES)
-	cd $(@F) && sudo ./docker-setup-execution.sh | tee $@; test $${PIPESTATUS[0]} -eq 0
+	cd $(@F) && ./docker-setup-execution.sh | tee $@; test $${PIPESTATUS[0]} -eq 0
 
 # ~~~
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-web-ui
 $(MLSPLOIT_SETUP_DIR)/mlsploit-web-ui: | mlsploit-web-ui/.git $(MODULE_PREREQUISITES)
-	cd $(@F) && sudo ./docker-setup-ui.sh | tee $@; test $${PIPESTATUS[0]} -eq 0
+	cd $(@F) && ./docker-setup-ui.sh | tee $@; test $${PIPESTATUS[0]} -eq 0
 
 # ~~~
 
 .PHONY: docker_compose_build
 docker_compose_build: $(MLSPLOIT_MODULES) | /usr/bin/docker-compose
-	sudo docker-compose build
+	docker-compose build
 
 .PHONY: docker_compose_up
 docker_compose_up: docker_compose_build
-	sudo docker-compose up -d
+	docker-compose up -d
