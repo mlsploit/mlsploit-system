@@ -116,3 +116,11 @@ docker_compose_build: $(MLSPLOIT_MODULES) | /usr/bin/docker-compose
 .PHONY: docker_compose_up
 docker_compose_up: docker_compose_build
 	docker-compose up -d
+
+.PHONY: docker_compose_logs
+docker_compose_logs:
+	docker-compose logs -f
+
+.PHONY: docker_compose_down
+docker_compose_down:
+	docker-compose down
