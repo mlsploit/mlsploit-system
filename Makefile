@@ -1,5 +1,11 @@
 SHELL := /bin/bash
 
+
+ifneq ($(shell groups $(shell whoami) | grep -c "\bdocker\b"), 1)
+$(error User $(shell whoami) should belong to the docker group for running recipes)
+endif
+
+
 MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 DONE_DIR := $(abspath $(MAKEFILE_DIR)/.done)
