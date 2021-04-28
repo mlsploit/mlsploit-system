@@ -40,3 +40,13 @@ in the background.
 ```
 docker-compose up -d
 ```
+
+
+## Deploying MLsploit
+
+This command will install all dependencies
+and deploy the end-to-end MLsploit system (for Ubuntu 18.04).
+
+```
+curl -sSL https://raw.githubusercontent.com/mlsploit/mlsploit-system/master/deployment.sh | bash
+```
