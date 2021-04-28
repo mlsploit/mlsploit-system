@@ -53,8 +53,8 @@ $(APT_PACKAGES): | $(APT_PKG_DIR)
 
 # ~~~
 
-/usr/bin/docker: /snap/bin/docker
-/usr/bin/docker-compose: /usr/local/bin/docker-compose
+/usr/bin/docker: | /snap/bin/docker
+/usr/bin/docker-compose: | /usr/local/bin/docker-compose
 
 /usr/bin/docker /usr/bin/docker-compose:
 	sudo ln -s $< $@
