@@ -124,3 +124,9 @@ docker_compose_logs:
 .PHONY: docker_compose_down
 docker_compose_down:
 	docker-compose down
+
+# ~~~
+
+.PHONY: docker_hosting_certbot
+docker_hosting_certbot:
+	docker-compose exec hosting certbot --apache $(ARGS)

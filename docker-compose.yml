@@ -32,8 +32,10 @@ services:
       context: .
     ports:
       - 80:80
+      - 443:443
     volumes:
       - ./mlsploit-rest-api/.scratch/media:/mlsploit/media
+      - hosting_letsencrypt:/etc/letsencrypt
     depends_on:
       - api
       - ui
@@ -88,3 +90,4 @@ services:
 
 volumes:
   ui_node_modules:
+  hosting_letsencrypt:
