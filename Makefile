@@ -78,6 +78,8 @@ git_submodules: $(GIT_SUBMODULES)
 
 # ~~~
 
+DOCKER_API_SETUP_ARGS ?= -apt
+
 mlsploit-rest-api/modules.csv: | mlsploit-rest-api/.git
 	cp modules.csv.example $@
 
@@ -86,7 +88,7 @@ mlsploit-rest-api/.env: | mlsploit-rest-api/.git
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api
 $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api: mlsploit-rest-api/modules.csv | $(MODULE_PREREQUISITES)
-	cd $(@F) && ./docker-setup-api.sh -apt | tee $@; test $${PIPESTATUS[0]} -eq 0
+	cd $(@F) && ./docker-setup-api.sh $(DOCKER_API_SETUP_ARGS) | tee $@; test $${PIPESTATUS[0]} -eq 0
 
 mlsploit-rest-api/.admintoken: $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api
 	cd $(@D) && ./docker-manage-api.sh drf_create_token admin | cut -d " " -f 3 > $(@F)
