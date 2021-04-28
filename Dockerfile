@@ -1,6 +1,7 @@
 FROM debian:buster-slim
 
 EXPOSE 80
+VOLUME /etc/apache2
 VOLUME /etc/letsencrypt
 VOLUME /mlsploit/media
 
