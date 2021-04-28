@@ -37,6 +37,7 @@ all: ubuntu_deps docker_compose_build
 .PHONY: clean
 clean:
 	sudo rm -rf $(dir $(GIT_SUBMODULES)) && git submodule deinit -f .
+	rm -rf $(MLSPLOIT_SETUP_DIR)
 
 .PHONY: ubuntu_deps
 ubuntu_deps: $(APT_PACKAGES) /usr/bin/docker-compose
@@ -79,6 +80,9 @@ git_submodules: $(GIT_SUBMODULES)
 
 mlsploit-rest-api/modules.csv: | mlsploit-rest-api/.git
 	cp modules.csv.example $@
+
+mlsploit-rest-api/.env: | mlsploit-rest-api/.git
+	cp $(@D)/.env.example $@
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api
 $(MLSPLOIT_SETUP_DIR)/mlsploit-rest-api: mlsploit-rest-api/modules.csv | $(MODULE_PREREQUISITES)
@@ -130,3 +134,8 @@ docker_compose_down:
 .PHONY: docker_hosting_certbot
 docker_hosting_certbot:
 	docker-compose exec hosting certbot --apache $(ARGS)
+
+.PHONY: docker_api_enable_ssl
+docker_api_enable_ssl: mlsploit-rest-api/.env
+	LINENUM=$$(grep -nm 1 "^MLSPLOIT_HOSTING_SSL_ENABLED=" $< | cut -f1 -d:) \
+		&& (sed "$${LINENUM}s/.*/MLSPLOIT_HOSTING_SSL_ENABLED=true/" $< > $<.tmp) && mv $<.tmp $<
