@@ -1,8 +1,6 @@
 FROM debian:buster-slim
 
 EXPOSE 80
-VOLUME /etc/apache2
-VOLUME /etc/letsencrypt
 VOLUME /mlsploit/media
 
 RUN apt-get update -y && apt-get install -y \
@@ -16,5 +14,8 @@ RUN a2enconf mlsploit \
     && a2enmod wsgi \
     && a2enmod headers \
     && a2enmod proxy_http
+
+VOLUME /etc/apache2
+VOLUME /etc/letsencrypt
 
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
