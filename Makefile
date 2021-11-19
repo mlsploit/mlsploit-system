@@ -5,6 +5,11 @@ ifneq ($(shell groups $(shell whoami) | grep -c "\bdocker\b"), 1)
 $(error User $(shell whoami) should belong to the docker group for running recipes)
 endif
 
+PROD ?= false
+ifeq ($(PROD),true)
+DOCKER_COMPOSE_UP_FLAGS := -f docker-compose.yml -f docker-compose-prod.yml
+endif
+
 
 MAKEFILE_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
@@ -121,7 +126,7 @@ docker_compose_build: $(MLSPLOIT_MODULES) | /usr/bin/docker-compose
 
 .PHONY: docker_compose_up
 docker_compose_up: docker_compose_build
-	docker-compose up -d
+	docker-compose $(DOCKER_COMPOSE_UP_FLAGS) up -d
 
 .PHONY: docker_compose_logs
 docker_compose_logs:

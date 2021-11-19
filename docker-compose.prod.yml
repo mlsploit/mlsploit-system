@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  networking-backend:
+    ports:
+      - 6379:6379
+
+  networking-broker:
+    ports:
+      - 5672:5672
+      - 15672:15672
