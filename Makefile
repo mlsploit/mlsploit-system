@@ -81,7 +81,7 @@ git_submodules: $(GIT_SUBMODULES)
 DOCKER_API_SETUP_ARGS ?= -apt
 
 mlsploit-rest-api/modules.csv: | mlsploit-rest-api/.git
-	cp modules.csv.example $@
+	cd $(@D) && ln -s $(abspath modules.csv.example) $(@F)
 
 mlsploit-rest-api/.env: | mlsploit-rest-api/.git
 	cp $(@D)/.env.example $@
@@ -101,7 +101,7 @@ mlsploit-execution-backend/.env: mlsploit-rest-api/.admintoken | mlsploit-execut
 	API_ADMIN_TOKEN=$$(cat $<) && cd $(@D) && ./env-set-token.sh "$${API_ADMIN_TOKEN}"
 
 mlsploit-execution-backend/modules.csv: | mlsploit-execution-backend/.git
-	cp modules.csv.example $@
+	cd $(@D) && ln -s $(abspath modules.csv.example) $(@F)
 
 .DELETE_ON_ERROR: $(MLSPLOIT_SETUP_DIR)/mlsploit-execution-backend
 $(MLSPLOIT_SETUP_DIR)/mlsploit-execution-backend: $(BACKEND_PREREQUISITES) | $(MODULE_PREREQUISITES)
