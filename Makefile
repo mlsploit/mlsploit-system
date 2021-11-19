@@ -7,7 +7,7 @@ endif
 
 PROD ?= false
 ifeq ($(PROD),true)
-DOCKER_COMPOSE_UP_FLAGS := -f docker-compose.yml -f docker-compose-prod.yml
+DOCKER_COMPOSE_UP_FLAGS := -f docker-compose.yml -f docker-compose.prod.yml
 endif
 
 
