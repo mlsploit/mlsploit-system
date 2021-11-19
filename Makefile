@@ -120,6 +120,12 @@ $(MLSPLOIT_SETUP_DIR)/mlsploit-web-ui: | mlsploit-web-ui/.git $(MODULE_PREREQUIS
 
 # ~~~
 
+.PHONY: git_pull_recursive
+git_pull_recursive: $(MLSPLOIT_MODULES)
+	git pull --recurse-submodules
+
+# ~~~
+
 .PHONY: docker_compose_build
 docker_compose_build: $(MLSPLOIT_MODULES) | /usr/bin/docker-compose
 	docker-compose build
