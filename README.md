@@ -2,7 +2,7 @@
 
 # MLsploit Dockerized System
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://azuredeploy.net/)
+<!-- [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://azuredeploy.net/) -->
 
 ## Requirements
 
@@ -28,7 +28,7 @@ along with the required secret keys automatically.
 
 ```
 $ cd mlsploit-system
-$ ./docker-setup-system.sh
+$ make docker_compose_build
 ```
 
 
@@ -38,7 +38,15 @@ This will spin up the MLsploit services and run the user interface on port 80
 in the background.
 
 ```
-docker-compose up -d
+make docker_compose_up
+```
+
+### Production setup
+
+To run MLsploit in production mode and allow external execution workers be able to connect to MLsploit, run:
+
+```
+make docker_compose_up PROD=true
 ```
 
 
