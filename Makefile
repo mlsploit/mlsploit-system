@@ -134,6 +134,10 @@ docker_compose_build: $(MLSPLOIT_MODULES) | /usr/bin/docker-compose
 docker_compose_up: docker_compose_build
 	docker-compose $(DOCKER_COMPOSE_UP_FLAGS) up -d
 
+.PHONY: docker_compose_up_prod
+docker_compose_up_prod:
+	$(MAKE) docker_compose_up PROD=true
+
 .PHONY: docker_compose_logs
 docker_compose_logs:
 	docker-compose logs -f
