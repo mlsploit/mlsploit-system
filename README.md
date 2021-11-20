@@ -46,7 +46,7 @@ make docker_compose_up
 To run MLsploit in production mode and allow external execution workers be able to connect to MLsploit, run:
 
 ```
-make docker_compose_up PROD=true
+make docker_compose_up_prod
 ```
 
 
