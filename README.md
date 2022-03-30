@@ -10,6 +10,14 @@ This repository requires the following packages to be installed on the system:
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
+## Quickstart: Deploying MLsploit (one-click setup)
+
+This command will install all dependencies
+and deploy the end-to-end MLsploit system (for Ubuntu 18.04).
+
+```bash
+curl -sSL https://raw.githubusercontent.com/mlsploit/mlsploit-system/master/deployment.sh | bash
+```
 
 ## Cloning this repository
 
@@ -23,12 +31,11 @@ $ git clone --recursive https://github.com/mlsploit/mlsploit-system.git
 
 ## Setting up MLsploit Docker images
 
-The following commands will setup the respective MLsploit docker images
+The following command will setup the respective MLsploit docker images
 along with the required secret keys automatically.
 
-```
-$ cd mlsploit-system
-$ make docker_compose_build
+```bash
+make docker_compose_build
 ```
 
 
@@ -37,7 +44,7 @@ $ make docker_compose_build
 This will spin up the MLsploit services and run the user interface on port 80
 in the background.
 
-```
+```bash
 make docker_compose_up
 ```
 
@@ -45,16 +52,6 @@ make docker_compose_up
 
 To run MLsploit in production mode and allow external execution workers be able to connect to MLsploit, run:
 
-```
+```bash
 make docker_compose_up_prod
-```
-
-
-## Deploying MLsploit
-
-This command will install all dependencies
-and deploy the end-to-end MLsploit system (for Ubuntu 18.04).
-
-```
-curl -sSL https://raw.githubusercontent.com/mlsploit/mlsploit-system/master/deployment.sh | bash
 ```
