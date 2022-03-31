@@ -19,6 +19,8 @@ and deploy the end-to-end MLsploit system (for Ubuntu 18.04).
 curl -sSL https://raw.githubusercontent.com/mlsploit/mlsploit-system/master/deployment.sh | bash
 ```
 
+[![Deploy To Azure](azuredeploy.svg)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmlsploit%2Fmlsploit-system%2Fmaster%2Fazuredeploy.json)
+
 ## Cloning this repository
 
 Since this repository contains submodules of other MLsploit repositories,
